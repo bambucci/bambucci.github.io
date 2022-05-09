@@ -5,7 +5,7 @@
 <div style="text-align:center"> 
 <button onclick="toggle(this)">САНЯ</button> 
 <br>
-<video id="video1" width="420" hidden = "hidden">
+<video id="video1" width="420" hidden>
     <source src="SerbiaStrong.mp4" type="video/mp4">
     Your browser does not support HTML video.
 </video>
@@ -16,10 +16,11 @@
 
 <script>
   let toggle = button => {
-     let element = document.getElementById("video1");
-     let hidden = element.getAttribute("hidden");
+     let video = document.getElementById("video1");
+     let hidden = video.getAttribute("hidden");
 
-     element.setAttribute("hidden", "hidden");
+     video.removeAttribute("hidden");
+     video.play();
      button.style.display = "none";
   }
 </script>
