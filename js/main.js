@@ -1,8 +1,9 @@
-$(document).ready(function() {
-  $('#play-video').on('click', function(ev) {
- 
-    $("#video")[0].src += "&autoplay=1";
-    ev.preventDefault();
- 
-  });
-});
+function myFunction() {
+  var x = document.getElementById("myDIV");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+  $("#video")[0].src += "&autoplay=1";
+}
