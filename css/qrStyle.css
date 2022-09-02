@@ -5,3 +5,49 @@ html, body, {
     left:0;
     right:0;
 }
+
+#dancingPepes {
+	position: absolute;
+	bottom:0;
+	text-align: center;
+	width: 100%;
+	opacity:0;
+}
+
+#pepeDance {
+	width: 110px;
+	height: 151px;
+}
+
+#player {
+	position: absolute;
+    top: 50%;
+    left: 50%;
+    -moz-transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
+}
+
+#cover {
+	position: absolute;
+    top: 50%;
+    left: 50%;
+    -moz-transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
+  width: 400px;
+  height: 370px;
+  animation-name: zoom;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-timing-function: ease-in-out;
+}
+
+@keyframes zoom {
+  from {width: 400px;}
+  to {width: 480px;}
+
+  from {height: 370px;}
+  to {height: 444px;}
+}
