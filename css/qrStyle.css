@@ -8,11 +8,17 @@ html, body, {
 
 #dancingPepes {
 	position: absolute;
-	bottom:0px;
+	bottom:0;
 	text-align: center;
 	width: 100%;
 	opacity:0;
 }
+
+@keyframes appear {
+	from {bottom:-302px;}
+	to {bottom:0px;}
+}
+
 
 #pepeDance {
 	width: 220px;
