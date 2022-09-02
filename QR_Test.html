@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <html>
-<body onload="myFunction();">
+<body>
 <head>
-
-	<div class="buttons">
-		<button class="button" id="play-button">PLAY</button>
-		<button class="button" id="pause-button">PAUSE</button>
-		<button class="button" id="stop-button">STOP</button>
-	</div>
-
-	<!-- Make sure ?enablejsapi=1 is in URL -->
-	<iframe id="video" src="https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1&html5=1" frameborder="0" allowfullscreen></iframe>
 	
+	<div style="position: relative;">
+    <img src="https://www.meme-arsenal.com/memes/e54b7a9107bbecd20325acd9eb22d6ac.jpg" style="position:absolute;top:0;left:0;opacity:1;" id="cover">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position: absolute;top:0;left:0;opacity:0;" id="player"></iframe>
+</div>
+<script>
+    setInterval(function(){
+        if(document.activeElement instanceof HTMLIFrameElement){
+            document.getElementById('cover').style.opacity=0;
+            document.getElementById('player').style.opacity=1;
+        }
+    } , 50);
 	
+</script>
 </head>
-<script src="js/main.js"></script>
 </body>
 </html>
