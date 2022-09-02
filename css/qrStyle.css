@@ -12,12 +12,12 @@ html, body, {
 	text-align: center;
 	width: 100%;
 	opacity:0;
-	height:150px
+	height:200px
 	
 }
 
 @keyframes appear {
-	from {bottom:-150px;}
+	from {bottom:-250px;}
 	to {bottom:0px;}
 }
 
