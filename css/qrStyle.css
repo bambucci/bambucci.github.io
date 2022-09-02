@@ -8,15 +8,15 @@ html, body, {
 
 #dancingPepes {
 	position: absolute;
-	bottom:0;
+	bottom:0px;
 	text-align: center;
 	width: 100%;
 	opacity:0;
 }
 
 #pepeDance {
-	width: 110px;
-	height: 151px;
+	width: 220px;
+	height: 302px;
 }
 
 #player {
