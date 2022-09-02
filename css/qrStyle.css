@@ -12,6 +12,8 @@ html, body, {
 	text-align: center;
 	width: 100%;
 	opacity:0;
+	height:150px
+	
 }
 
 @keyframes appear {
@@ -21,8 +23,8 @@ html, body, {
 
 
 #pepeDance {
-	width: 140px;
-	height: 197px;
+	width: auto; 
+	max-height: 100%; 
 }
 
 #player {
