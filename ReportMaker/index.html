@@ -626,7 +626,8 @@
         // Close modals when clicking outside
         window.onmousedown = function (event) {
             const countryModal = document.getElementById('countryModal');
-            const importModal = document.getElementById('importcountryModal          if (event.target === countryModal) {
+            const importModal = document.getElementById('importModal')   
+            if (event.target === countryModal) {
                 countryModal.style.display = 'none';
             }
             if (event.target === importModal) {
