@@ -202,6 +202,10 @@
             gap: 10px;
             justify-content: flex-end;
         }
+
+        .file-input {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -214,6 +218,8 @@
             <button class="primary" onclick="generateReport()">Generate Report</button>
             <button onclick="importCountries()">Import Countries</button>
             <button onclick="exportCountries()">Export Countries</button>
+            <button onclick="loadCountriesFromFile()">Load from countries.json</button>
+            <input type="file" id="fileInput" class="file-input" accept=".json" onchange="handleFileSelect(event)">
         </div>
 
         <div class="content">
@@ -299,35 +305,115 @@
                 const item = document.createElement('div');
                 item.className = 'country-item';
                 item.innerHTML = `
-                    <span class="key">${key}</span>
-                    <span class="value">${countries[key]}</span>
-                    <button onclick="removeCountry('${key}')" style="padding: 2px 8px;">×</button>
-                `;
+                        <span class="key">${key}</span>
+                        <span class="value">${countries[key]}</span>
+                        <button onclick="removeCountry('${key}')" style="padding: 2px 8px;">×</button>
+                    `;
                 listElement.appendChild(item);
             }
         }
 
+        // Load countries from JSON file in the same folder
+        window.loadCountriesFromFile = function () {
+            setStatus('Loading countries from file...');
+
+            // Try to fetch the file from the same directory
+            fetch('countries.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('countries.json not found in the current folder');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    countries = { ...data };
+                    updateCountryList();
+                    setStatus('Countries loaded successfully from countries.json');
+                })
+                .catch(error => {
+                    console.error('Error loading countries:', error);
+                    setStatus('Error: ' + error.message + '. You can manually select a file.');
+
+                    // Fallback: trigger file input if fetch fails
+                    document.getElementById('fileInput').click();
+                });
+        }
+
+        // Handle manual file selection
+        window.handleFileSelect = function (event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    countries = { ...data };
+                    updateCountryList();
+                    setStatus('Countries loaded successfully from ' + file.name);
+                } catch (error) {
+                    setStatus('Error parsing JSON file');
+                    alert('Invalid JSON format');
+                }
+            };
+            reader.readAsText(file);
+
+            // Clear the input so the same file can be selected again
+            event.target.value = '';
+        }
+
+        // Auto-load countries.json when page loads
+        window.addEventListener('load', function () {
+            // Try to load countries.json automatically
+            fetch('countries.json')
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    // If file doesn't exist, just use defaults
+                    return null;
+                })
+                .then(data => {
+                    if (data) {
+                        countries = { ...data };
+                        updateCountryList();
+                        setStatus('Loaded countries from countries.json');
+                    } else {
+                        // Use defaults if file doesn't exist
+                        countries = { ...DEFAULT_COUNTRIES };
+                        updateCountryList();
+                        setStatus('Using default countries (countries.json not found)');
+                    }
+                })
+                .catch(error => {
+                    // Use defaults on any error
+                    countries = { ...DEFAULT_COUNTRIES };
+                    updateCountryList();
+                    setStatus('Using default countries');
+                });
+        });
+
         // Remove country
-        window.removeCountry = function(key) {
+        window.removeCountry = function (key) {
             delete countries[key];
             updateCountryList();
             setStatus(`Removed ${key}`);
         }
 
         // Show add country modal
-        window.showAddCountryModal = function() {
+        window.showAddCountryModal = function () {
             document.getElementById('countryModal').style.display = 'block';
             document.getElementById('keywordInput').value = '';
             document.getElementById('countryNameInput').value = '';
         }
 
         // Close modal
-        window.closeModal = function() {
+        window.closeModal = function () {
             document.getElementById('countryModal').style.display = 'none';
         }
 
         // Add country
-        window.addCountry = function() {
+        window.addCountry = function () {
             const keyword = document.getElementById('keywordInput').value.trim();
             const countryName = document.getElementById('countryNameInput').value.trim();
 
@@ -340,18 +426,18 @@
         }
 
         // Show import modal
-        window.importCountries = function() {
+        window.importCountries = function () {
             document.getElementById('importModal').style.display = 'block';
             document.getElementById('importText').value = JSON.stringify(countries, null, 2);
         }
 
         // Close import modal
-        window.closeImportModal = function() {
+        window.closeImportModal = function () {
             document.getElementById('importModal').style.display = 'none';
         }
 
         // Do import
-        window.doImport = function() {
+        window.doImport = function () {
             try {
                 const importText = document.getElementById('importText').value;
                 const imported = JSON.parse(importText);
@@ -365,9 +451,9 @@
         }
 
         // Export countries
-        window.exportCountries = function() {
+        window.exportCountries = function () {
             const dataStr = JSON.stringify(countries, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
 
             const exportFileDefaultName = 'countries.json';
 
@@ -380,7 +466,7 @@
         }
 
         // Reset to default
-        window.resetToDefault = function() {
+        window.resetToDefault = function () {
             countries = { ...DEFAULT_COUNTRIES };
             updateCountryList();
             setStatus('Reset to default countries');
@@ -409,7 +495,7 @@
         }
 
         // Generate report
-        window.generateReport = function() {
+        window.generateReport = function () {
             const inputText = document.getElementById('inputText').value;
             const lines = inputText.split('\n').filter(line => line.trim() !== '');
 
@@ -485,10 +571,9 @@
 
         // Initialize
         updateCountryList();
-        setStatus('Ready');
 
         // Close modals when clicking outside
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             const modal = document.getElementById('countryModal');
             const importModal = document.getElementById('importModal');
             if (event.target === modal) {
