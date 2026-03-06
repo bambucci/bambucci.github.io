@@ -206,6 +206,15 @@
         .file-input {
             display: none;
         }
+
+        .unrecognized-badge {
+            background-color: #dc3545;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -291,6 +300,8 @@
             'Australia': 'Australia',
             'India': 'India'
         };
+
+        const UNRECOGNIZED_CATEGORY = "! Не распознано !";
 
         // Initialize countries
         let countries = { ...DEFAULT_COUNTRIES };
@@ -485,7 +496,7 @@
                     return countryName;
                 }
             }
-            return "! Не распознано !";
+            return null; // Return null for unrecognized messages
         }
 
         // Extract time for sorting
@@ -500,6 +511,7 @@
             const lines = inputText.split('\n').filter(line => line.trim() !== '');
 
             const countryMessages = {};
+            const unrecognizedMessages = [];
 
             for (let i = 0; i < lines.length; i++) {
                 if (i + 1 >= lines.length) break;
@@ -534,14 +546,18 @@
                 }
 
                 const country = findCountryInMessage(messageContent);
-                if (country === "! Не распознано !") continue;
-
                 const formattedMessage = `${messageTime} ${messageContent}`;
 
-                if (!countryMessages[country]) {
-                    countryMessages[country] = [];
+                if (country === null) {
+                    // Add to unrecognized messages
+                    unrecognizedMessages.push(formattedMessage);
+                } else {
+                    // Add to country-specific messages
+                    if (!countryMessages[country]) {
+                        countryMessages[country] = [];
+                    }
+                    countryMessages[country].push(formattedMessage);
                 }
-                countryMessages[country].push(formattedMessage);
             }
 
             // Sort messages within each country
@@ -553,8 +569,26 @@
                 });
             }
 
+            // Sort unrecognized messages
+            unrecognizedMessages.sort((a, b) => {
+                const timeA = extractTimeForSorting(a);
+                const timeB = extractTimeForSorting(b);
+                return timeA.localeCompare(timeB);
+            });
+
             // Build report
             let report = '';
+
+            // Add unrecognized messages first (at the top)
+            if (unrecognizedMessages.length > 0) {
+                report += UNRECOGNIZED_CATEGORY + '\n';
+                for (const message of unrecognizedMessages) {
+                    report += message + '\n';
+                }
+                report += '\n';
+            }
+
+            // Add recognized countries in alphabetical order
             const sortedCountries = Object.keys(countryMessages).sort();
 
             for (const country of sortedCountries) {
@@ -566,7 +600,10 @@
             }
 
             document.getElementById('outputText').value = report.trim();
-            setStatus('Report generated successfully');
+
+            // Update status with counts
+            const recognizedCount = Object.values(countryMessages).reduce((acc, msgs) => acc + msgs.length, 0);
+            setStatus(`Report generated: ${recognizedCount} recognized, ${unrecognizedMessages.length} unrecognized messages`);
         }
 
         // Initialize
