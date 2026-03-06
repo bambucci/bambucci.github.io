@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Generator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+            .header h1 {
+                margin: 0;
+                font-size: 24px;
+            }
+
+        .toolbar {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+            .toolbar button {
+                padding: 8px 16px;
+                background: white;
+                border: 1px solid #ced4da;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: all 0.2s;
+            }
+
+                .toolbar button:hover {
+                    background: #e9ecef;
+                    border-color: #adb5bd;
+                }
+
+                .toolbar button.primary {
+                    background: #007bff;
+                    border-color: #007bff;
+                    color: white;
+                }
+
+                    .toolbar button.primary:hover {
+                        background: #0056b3;
+                        border-color: #0056b3;
+                    }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            min-height: 500px;
+        }
+
+        .panel {
+            padding: 20px;
+            background: white;
+        }
+
+        .panel-left {
+            border-right: 1px solid #dee2e6;
+        }
+
+        .panel h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #495057;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        textarea {
+            width: 100%;
+            height: calc(100% - 40px);
+            min-height: 400px;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+        }
+
+            textarea:focus {
+                outline: none;
+                border-color: #80bdff;
+                box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+            }
+
+        .countries-panel {
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            padding: 20px;
+        }
+
+        .countries-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+            .countries-header h3 {
+                margin: 0;
+            }
+
+        .country-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .country-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .country-item:last-child {
+                border-bottom: none;
+            }
+
+            .country-item .key {
+                font-weight: 600;
+                color: #495057;
+            }
+
+            .country-item .value {
+                color: #28a745;
+            }
+
+        .status-bar {
+            background: #e9ecef;
+            padding: 8px 20px;
+            font-size: 13px;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            min-width: 400px;
+        }
+
+        .modal textarea {
+            min-height: 200px;
+            margin: 10px 0;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Report Generator</h1>
+        </div>
+
+        <div class="toolbar">
+            <button class="primary" onclick="generateReport()">Generate Report</button>
+            <button onclick="importCountries()">Import Countries</button>
+            <button onclick="exportCountries()">Export Countries</button>
+        </div>
+
+        <div class="content">
+            <div class="panel panel-left">
+                <h3>Input</h3>
+                <textarea id="inputText" placeholder="Paste your chat log here..."></textarea>
+            </div>
+            <div class="panel">
+                <h3>Output</h3>
+                <textarea id="outputText" readonly placeholder="Report will appear here..."></textarea>
+            </div>
+        </div>
+
+        <div class="countries-panel">
+            <div class="countries-header">
+                <h3>Country Keywords</h3>
+                <div>
+                    <button onclick="showAddCountryModal()">Add Country</button>
+                    <button onclick="resetToDefault()">Reset to Default</button>
+                </div>
+            </div>
+            <div id="countryList" class="country-list"></div>
+        </div>
+
+        <div class="status-bar" id="statusBar">
+            Ready
+        </div>
+    </div>
+
+    <!-- Modal for adding country -->
+    <div id="countryModal" class="modal">
+        <div class="modal-content">
+            <h3>Add Country Keyword</h3>
+            <input type="text" id="keywordInput" placeholder="Keyword (e.g., USA)" style="width: 100%; padding: 8px; margin: 10px 0;">
+            <input type="text" id="countryNameInput" placeholder="Country Name (e.g., United States)" style="width: 100%; padding: 8px; margin: 10px 0;">
+            <div class="modal-buttons">
+                <button onclick="addCountry()">Add</button>
+                <button onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for import -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <h3>Import Countries (JSON)</h3>
+            <textarea id="importText" placeholder='{"USA": "United States", "UK": "United Kingdom"}'></textarea>
+            <div class="modal-buttons">
+                <button onclick="doImport()">Import</button>
+                <button onclick="closeImportModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Default country keywords
+        const DEFAULT_COUNTRIES = {
+            'USA': 'United States',
+            'UK': 'United Kingdom',
+            'France': 'France',
+            'Germany': 'Germany',
+            'Italy': 'Italy',
+            'Spain': 'Spain',
+            'Japan': 'Japan',
+            'China': 'China',
+            'Russia': 'Russia',
+            'Brazil': 'Brazil',
+            'Canada': 'Canada',
+            'Australia': 'Australia',
+            'India': 'India'
+        };
+
+        // Initialize countries
+        let countries = { ...DEFAULT_COUNTRIES };
+
+        // Update country list display
+        function updateCountryList() {
+            const listElement = document.getElementById('countryList');
+            listElement.innerHTML = '';
+
+            const sortedKeys = Object.keys(countries).sort();
+            for (const key of sortedKeys) {
+                const item = document.createElement('div');
+                item.className = 'country-item';
+                item.innerHTML = `
+                    <span class="key">${key}</span>
+                    <span class="value">${countries[key]}</span>
+                    <button onclick="removeCountry('${key}')" style="padding: 2px 8px;">×</button>
+                `;
+                listElement.appendChild(item);
+            }
+        }
+
+        // Remove country
+        window.removeCountry = function(key) {
+            delete countries[key];
+            updateCountryList();
+            setStatus(`Removed ${key}`);
+        }
+
+        // Show add country modal
+        window.showAddCountryModal = function() {
+            document.getElementById('countryModal').style.display = 'block';
+            document.getElementById('keywordInput').value = '';
+            document.getElementById('countryNameInput').value = '';
+        }
+
+        // Close modal
+        window.closeModal = function() {
+            document.getElementById('countryModal').style.display = 'none';
+        }
+
+        // Add country
+        window.addCountry = function() {
+            const keyword = document.getElementById('keywordInput').value.trim();
+            const countryName = document.getElementById('countryNameInput').value.trim();
+
+            if (keyword && countryName) {
+                countries[keyword] = countryName;
+                updateCountryList();
+                closeModal();
+                setStatus(`Added ${keyword} -> ${countryName}`);
+            }
+        }
+
+        // Show import modal
+        window.importCountries = function() {
+            document.getElementById('importModal').style.display = 'block';
+            document.getElementById('importText').value = JSON.stringify(countries, null, 2);
+        }
+
+        // Close import modal
+        window.closeImportModal = function() {
+            document.getElementById('importModal').style.display = 'none';
+        }
+
+        // Do import
+        window.doImport = function() {
+            try {
+                const importText = document.getElementById('importText').value;
+                const imported = JSON.parse(importText);
+                countries = { ...imported };
+                updateCountryList();
+                closeImportModal();
+                setStatus('Countries imported successfully');
+            } catch (e) {
+                alert('Invalid JSON format');
+            }
+        }
+
+        // Export countries
+        window.exportCountries = function() {
+            const dataStr = JSON.stringify(countries, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+
+            const exportFileDefaultName = 'countries.json';
+
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+
+            setStatus('Countries exported');
+        }
+
+        // Reset to default
+        window.resetToDefault = function() {
+            countries = { ...DEFAULT_COUNTRIES };
+            updateCountryList();
+            setStatus('Reset to default countries');
+        }
+
+        // Set status message
+        function setStatus(message) {
+            document.getElementById('statusBar').textContent = message;
+        }
+
+        // Find country in message
+        function findCountryInMessage(message) {
+            for (const [keyword, countryName] of Object.entries(countries)) {
+                const regex = new RegExp(`\\b${keyword}\\b`, 'i');
+                if (regex.test(message)) {
+                    return countryName;
+                }
+            }
+            return "! Не распознано !";
+        }
+
+        // Extract time for sorting
+        function extractTimeForSorting(message) {
+            const match = message.match(/^(\d{2}:\d{2})/);
+            return match ? match[1] : '00:00';
+        }
+
+        // Generate report
+        window.generateReport = function() {
+            const inputText = document.getElementById('inputText').value;
+            const lines = inputText.split('\n').filter(line => line.trim() !== '');
+
+            const countryMessages = {};
+
+            for (let i = 0; i < lines.length; i++) {
+                if (i + 1 >= lines.length) break;
+
+                const messageLine = lines[i];
+                const nameLine = lines[i + 1];
+
+                if (!messageLine.trim()) {
+                    i--;
+                    continue;
+                }
+
+                const closingBracketIndex = messageLine.indexOf(']');
+                if (closingBracketIndex === -1) continue;
+
+                const afterBracket = messageLine.substring(closingBracketIndex + 1).trim();
+
+                // Look for time pattern (HH:MM) followed by optional space and dash
+                const timeMatch = afterBracket.match(/^(\d{2}:\d{2})\s*-?\s*/);
+
+                let messageTime;
+                let messageContent;
+
+                if (timeMatch) {
+                    messageTime = timeMatch[1];
+                    messageContent = afterBracket.substring(timeMatch[0].length).trim();
+                } else {
+                    const timestamp = messageLine.substring(1, closingBracketIndex);
+                    const timeParts = timestamp.split(' ');
+                    messageTime = timeParts.length > 1 ? timeParts[1] : timestamp;
+                    messageContent = afterBracket;
+                }
+
+                const country = findCountryInMessage(messageContent);
+                if (country === "! Не распознано !") continue;
+
+                const formattedMessage = `${messageTime} ${messageContent}`;
+
+                if (!countryMessages[country]) {
+                    countryMessages[country] = [];
+                }
+                countryMessages[country].push(formattedMessage);
+            }
+
+            // Sort messages within each country
+            for (const country in countryMessages) {
+                countryMessages[country].sort((a, b) => {
+                    const timeA = extractTimeForSorting(a);
+                    const timeB = extractTimeForSorting(b);
+                    return timeA.localeCompare(timeB);
+                });
+            }
+
+            // Build report
+            let report = '';
+            const sortedCountries = Object.keys(countryMessages).sort();
+
+            for (const country of sortedCountries) {
+                report += country + '\n';
+                for (const message of countryMessages[country]) {
+                    report += message + '\n';
+                }
+                report += '\n';
+            }
+
+            document.getElementById('outputText').value = report.trim();
+            setStatus('Report generated successfully');
+        }
+
+        // Initialize
+        updateCountryList();
+        setStatus('Ready');
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('countryModal');
+            const importModal = document.getElementById('importModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+            if (event.target === importModal) {
+                importModal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
