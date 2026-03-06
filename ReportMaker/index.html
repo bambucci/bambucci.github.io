@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex">
+
     <title>Report Generator</title>
     <style>
         * {
@@ -632,11 +632,11 @@
         updateCountryList();
 
         // Close modals when clicking outside
-        window.onclick = function (event) {
-            const modal = document.getElementById('countryModal');
+        window.onmousedown = function (event) {
+            const countryModal = document.getElementById('countryModal');
             const importModal = document.getElementById('importModal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
+            if (event.target === countryModal) {
+                countryModal.style.display = 'none';
             }
             if (event.target === importModal) {
                 importModal.style.display = 'none';
