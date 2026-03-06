@@ -228,7 +228,6 @@
             <button class="primary" onclick="generateReport()">Generate Report</button>
             <button onclick="importCountries()">Import Countries</button>
             <button onclick="exportCountries()">Export Countries</button>
-            <button onclick="loadCountriesFromFile()">Load from countries.json</button>
             <input type="file" id="fileInput" class="file-input" accept=".json" onchange="handleFileSelect(event)">
         </div>
 
@@ -248,7 +247,7 @@
                 <h3>Country Keywords</h3>
                 <div>
                     <button onclick="showAddCountryModal()">Add Country</button>
-                    <button onclick="resetToDefault()">Reset to Default</button>
+                    <button onclick="loadCountriesFromFile()">Reset to Default</button>
                 </div>
             </div>
             <div id="countryList" class="country-list"></div>
@@ -477,13 +476,6 @@
             setStatus('Countries exported');
         }
 
-        // Reset to default
-        window.resetToDefault = function () {
-            countries = { ...DEFAULT_COUNTRIES };
-            updateCountryList();
-            setStatus('Reset to default countries');
-        }
-
         // Set status message
         function setStatus(message) {
             document.getElementById('statusBar').textContent = message;
@@ -629,13 +621,12 @@
         }
 
         // Initialize
-        updateCountryList();
+        updateCouonmousedown  
 
         // Close modals when clicking outside
         window.onmousedown = function (event) {
             const countryModal = document.getElementById('countryModal');
-            const importModal = document.getElementById('importModal');
-            if (event.target === countryModal) {
+            const importModal = document.getElementById('importcountryModal          if (event.target === countryModal) {
                 countryModal.style.display = 'none';
             }
             if (event.target === importModal) {
