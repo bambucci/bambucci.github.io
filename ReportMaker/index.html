@@ -262,7 +262,7 @@
     <div id="countryModal" class="modal">
         <div class="modal-content">
             <h3>Add Country Keyword</h3>
-            <input type="text" id="keywordInput" placeholder="Keyword (e.g., USA)" style="width: 100%; padding: 8px; margin: 10px 0;">
+            <input type="text" id="keywordInput" placeholder="Keyword (e.g., USA or РОССИЯ)" style="width: 100%; padding: 8px; margin: 10px 0;">
             <input type="text" id="countryNameInput" placeholder="Country Name (e.g., United States)" style="width: 100%; padding: 8px; margin: 10px 0;">
             <div class="modal-buttons">
                 <button onclick="addCountry()">Add</button>
@@ -275,7 +275,7 @@
     <div id="importModal" class="modal">
         <div class="modal-content">
             <h3>Import Countries (JSON)</h3>
-            <textarea id="importText" placeholder='{"USA": "United States", "UK": "United Kingdom"}'></textarea>
+            <textarea id="importText" placeholder='{"USA": "United States", "РОССИЯ": "Russia"}'></textarea>
             <div class="modal-buttons">
                 <button onclick="doImport()">Import</button>
                 <button onclick="closeImportModal()">Cancel</button>
@@ -284,7 +284,7 @@
     </div>
 
     <script>
-        // Default country keywords
+        // Default country keywords (including Cyrillic examples)
         const DEFAULT_COUNTRIES = {
             'USA': 'United States',
             'UK': 'United Kingdom',
@@ -294,11 +294,11 @@
             'Spain': 'Spain',
             'Japan': 'Japan',
             'China': 'China',
-            'Russia': 'Russia',
-            'Brazil': 'Brazil',
-            'Canada': 'Canada',
-            'Australia': 'Australia',
-            'India': 'India'
+            'РОССИЯ': 'Russia',
+            'БРАЗИЛИЯ': 'Brazil',
+            'КАНАДА': 'Canada',
+            'АВСТРАЛИЯ': 'Australia',
+            'ИНДИЯ': 'India'
         };
 
         const UNRECOGNIZED_CATEGORY = "! Не распознано !";
@@ -311,7 +311,7 @@
             const listElement = document.getElementById('countryList');
             listElement.innerHTML = '';
 
-            const sortedKeys = Object.keys(countries).sort();
+            const sortedKeys = Object.keys(countries).sort((a, b) => a.localeCompare(b, 'ru'));
             for (const key of sortedKeys) {
                 const item = document.createElement('div');
                 item.className = 'country-item';
@@ -488,12 +488,33 @@
             document.getElementById('statusBar').textContent = message;
         }
 
-        // Find country in message
+        // Escape special regex characters in the keyword
+        function escapeRegex(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        // Find country in message (with Cyrillic support)
         function findCountryInMessage(message) {
             for (const [keyword, countryName] of Object.entries(countries)) {
-                const regex = new RegExp(`\\b${keyword}\\b`, 'i');
-                if (regex.test(message)) {
-                    return countryName;
+                // Create a pattern that matches the keyword with word boundaries
+                // Using Unicode property escapes for better international support
+                try {
+                    // Escape the keyword for regex
+                    const escapedKeyword = escapeRegex(keyword);
+
+                    // Create pattern that works with both Latin and Cyrillic
+                    // \p{L} matches any letter in any language
+                    const pattern = `(?:^|[\\s\\p{P}])${escapedKeyword}(?:[\\s\\p{P}]|$)`;
+                    const regex = new RegExp(pattern, 'iu'); // 'u' flag for Unicode support, 'i' for case-insensitive
+
+                    if (regex.test(message)) {
+                        return countryName;
+                    }
+                } catch (e) {
+                    // Fallback to simple includes if regex fails
+                    if (message.includes(keyword)) {
+                        return countryName;
+                    }
                 }
             }
             return null; // Return null for unrecognized messages
@@ -588,8 +609,8 @@
                 report += '\n';
             }
 
-            // Add recognized countries in alphabetical order
-            const sortedCountries = Object.keys(countryMessages).sort();
+            // Add recognized countries in alphabetical order (with Cyrillic support)
+            const sortedCountries = Object.keys(countryMessages).sort((a, b) => a.localeCompare(b, 'ru'));
 
             for (const country of sortedCountries) {
                 report += country + '\n';
